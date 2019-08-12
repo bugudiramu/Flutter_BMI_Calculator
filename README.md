@@ -1,6 +1,7 @@
 # BMI_Calculator
 
 A new Flutter project.
+Design is inspired by Dimitri Mashkin from Dribble
 
 # Screenshots:
 
