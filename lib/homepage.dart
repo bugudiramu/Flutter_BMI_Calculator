@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+
+import 'blocs/providerBloc.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -9,10 +12,10 @@ class HomePage extends StatefulWidget {
 
 // BMI FORMULA = Kg/m*m
 class _HomePageState extends State<HomePage> {
-  var age = 0;
-  var weight = 0;
-  var ageSliderVal = 0.0;
-  var weightSliderVal = 0.0;
+  // var age = 0;
+  // var weight = 0;
+  // var ageSliderVal = 0.0;
+  // var weightSliderVal = 0.0;
   var heightSliderVal = 0.0;
   var radioValue = 0;
   String bmi;
@@ -21,10 +24,8 @@ class _HomePageState extends State<HomePage> {
   calculateBMI() {
     var heightInMeter = heightSliderVal * 0.01;
     setState(() {
-      // if (weightSliderVal <= 0 || heightSliderVal <= 0) {
-      //   result = "0";
-      // }
-      result = weightSliderVal / (heightInMeter * heightInMeter).toDouble();
+      result = Provider.of<Blocs>(context).weightSliderVal /
+          (heightInMeter * heightInMeter).toDouble();
       if (result < 18.5) {
         bmi = 'Underweight '.toUpperCase();
       } else if (result >= 18.5 && result < 25) {
@@ -42,6 +43,27 @@ class _HomePageState extends State<HomePage> {
       return result;
     });
   }
+  // calculateBMI() {
+  //   var heightInMeter = heightSliderVal * 0.01;
+  //   setState(() {
+  //     result = weightSliderVal / (heightInMeter * heightInMeter).toDouble();
+  //     if (result < 18.5) {
+  //       bmi = 'Underweight '.toUpperCase();
+  //     } else if (result >= 18.5 && result < 25) {
+  //       bmi = 'Normal'.toUpperCase();
+  //     } else if (result >= 25 && result < 30) {
+  //       bmi = 'Overweight '.toUpperCase();
+  //     } else if (result >= 30) {
+  //       bmi = 'Obesity '.toUpperCase();
+  //     } else {
+  //       bmi = 'Please Choose The Height And Weight Atleast To Calculate BMI.';
+  //     }
+  //     var finalResult = result.toStringAsFixed(1);
+
+  //     showResultDialog(finalResult, bmi);
+  //     return result;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +74,7 @@ class _HomePageState extends State<HomePage> {
         title: Text("bmi calcultor".toUpperCase()),
         centerTitle: true,
         backgroundColor: Colors.blueGrey.shade900,
+        elevation: 0.0,
       ),
       body: Container(
         color: Colors.blueGrey.shade900,
@@ -60,8 +83,8 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             Row(
               children: <Widget>[
-                ageCard(deviceWidth, "age".toUpperCase(), age),
-                weightCard(deviceWidth, "weight".toUpperCase(), weight),
+                ageCard(deviceWidth, "age".toUpperCase()),
+                weightCard(deviceWidth, "weight".toUpperCase()),
               ],
             ),
             heightCard(deviceWidth, "height".toUpperCase()),
@@ -89,14 +112,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget ageCard(double deviceWidth, String title, int ageVal) {
+  Widget ageCard(double deviceWidth, String title) {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         // padding: const EdgeInsets.only(
         //     top: 20.0, bottom: 20.0, left: 10.0, right: 10.0),
         child: Card(
-          color: Colors.blueGrey.shade700,
+          color: Colors.blueGrey.shade800,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
@@ -116,9 +139,13 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        "${ageSliderVal.toInt()}",
+                        "${Provider.of<Blocs>(context).getage().toInt()}",
                         style: Theme.of(context).textTheme.headline,
                       ),
+                      // Text(
+                      //   "${ageSliderVal.toInt()}",
+                      //   style: Theme.of(context).textTheme.headline,
+                      // ),
                       SizedBox(
                         width: 8.0,
                       ),
@@ -137,12 +164,17 @@ class _HomePageState extends State<HomePage> {
                   divisions: 100,
                   activeColor: Colors.deepOrangeAccent,
                   inactiveColor: Colors.white,
-                  value: ageSliderVal,
+                  value: Provider.of<Blocs>(context).ageSliderVal,
                   onChanged: (newVal) {
                     setState(() {
-                      ageSliderVal = newVal;
+                      Provider.of<Blocs>(context).ageSliderVal = newVal;
                     });
                   },
+                  // onChanged: (newVal) {
+                  //   setState(() {
+                  //     ageSliderVal = newVal;
+                  //   });
+                  // },
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -151,9 +183,19 @@ class _HomePageState extends State<HomePage> {
                       backgroundColor: Colors.blueGrey,
                       child: IconButton(
                         onPressed: () {
-                          setState(() {
-                            ageSliderVal = ageSliderVal - 1;
-                          });
+                          // try {
+                          //   if (ageSliderVal <= 0.0 && ageSliderVal >= 100.0) {
+                          //     setState(() {
+                          //       ageSliderVal = 0;
+                          //     });
+                          //   }
+                          // } catch (e) {
+                          //   print(e.toString());
+                          // }
+                          // setState(() {
+                          //   ageSliderVal = ageSliderVal - 1;
+                          // });
+                          Provider.of<Blocs>(context).decrementAge();
                         },
                         icon: Icon(
                           FontAwesomeIcons.minus,
@@ -167,9 +209,10 @@ class _HomePageState extends State<HomePage> {
                       child: IconButton(
                         color: Colors.white,
                         onPressed: () {
-                          setState(() {
-                            ageSliderVal = ageSliderVal + 1;
-                          });
+                          Provider.of<Blocs>(context).incrementAge();
+                          // setState(() {
+                          //   ageSliderVal = ageSliderVal + 1;
+                          // });
                         },
                         icon: Icon(
                           FontAwesomeIcons.plus,
@@ -186,14 +229,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget weightCard(double deviceWidth, String title, int weightVal) {
+  Widget weightCard(double deviceWidth, String title) {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         // padding: const EdgeInsets.only(
         // top: 20.0, bottom: 20.0, left: 10.0, right: 10.0),
         child: Card(
-          color: Colors.blueGrey.shade700,
+          color: Colors.blueGrey.shade800,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
@@ -213,7 +256,7 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        "${weightSliderVal.toInt()}",
+                        "${Provider.of<Blocs>(context).getWeight().toInt()}",
                         style: Theme.of(context).textTheme.headline,
                       ),
                       SizedBox(
@@ -234,10 +277,12 @@ class _HomePageState extends State<HomePage> {
                   divisions: 200,
                   activeColor: Colors.deepOrangeAccent,
                   inactiveColor: Colors.white,
-                  value: weightSliderVal,
+                  // value: weightSliderVal,
+                  value: Provider.of<Blocs>(context).weightSliderVal,
                   onChanged: (newVal) {
                     setState(() {
-                      weightSliderVal = newVal;
+                      // weightSliderVal = newVal;
+                      Provider.of<Blocs>(context).weightSliderVal = newVal;
                     });
                   },
                 ),
@@ -247,11 +292,13 @@ class _HomePageState extends State<HomePage> {
                     CircleAvatar(
                       backgroundColor: Colors.blueGrey,
                       child: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            weightSliderVal = weightSliderVal - 1;
-                          });
-                        },
+                        onPressed: () =>
+                            Provider.of<Blocs>(context).decrementWeight(),
+                        // onPressed: () {
+                        //   setState(() {
+                        //     weightSliderVal = weightSliderVal - 1;
+                        //   });
+                        // },
                         icon: Icon(
                           FontAwesomeIcons.minus,
                           color: Colors.white,
@@ -263,11 +310,13 @@ class _HomePageState extends State<HomePage> {
                       backgroundColor: Colors.blueGrey,
                       child: IconButton(
                         color: Colors.white,
-                        onPressed: () {
-                          setState(() {
-                            weightSliderVal = weightSliderVal + 1;
-                          });
-                        },
+                        onPressed: () =>
+                            Provider.of<Blocs>(context).incrementWeight(),
+                        // onPressed: () {
+                        //   setState(() {
+                        //     weightSliderVal = weightSliderVal - 1;
+                        //   });
+                        // },
                         icon: Icon(
                           FontAwesomeIcons.plus,
                         ),
@@ -289,7 +338,7 @@ class _HomePageState extends State<HomePage> {
       // padding: const EdgeInsets.only(
       //     top: 20.0, bottom: 20.0, left: 10.0, right: 10.0),
       child: Card(
-        color: Colors.blueGrey.shade700,
+        color: Colors.blueGrey.shade800,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
@@ -312,6 +361,7 @@ class _HomePageState extends State<HomePage> {
                       "${heightSliderVal.toInt()}",
                       style: Theme.of(context).textTheme.headline,
                     ),
+                    // Text("${Provider.of<Blocs>(context).getheight}"),
                     SizedBox(
                       width: 8.0,
                     ),
@@ -322,7 +372,6 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              Divider(),
               Container(
                 child: Slider(
                   min: 0.0,
@@ -349,7 +398,7 @@ class _HomePageState extends State<HomePage> {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Card(
-        color: Colors.blueGrey.shade700,
+        color: Colors.blueGrey.shade800,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
@@ -445,6 +494,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   showResultDialog(result, bmi) {
+    // if(result == null || result == "NaN"){
+    //   return result = "0";
+    // }
     return Alert(
       type: AlertType.success,
       style: AlertStyle(
